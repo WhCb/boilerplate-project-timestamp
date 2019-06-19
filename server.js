@@ -24,7 +24,17 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-
+// Timestamp API endpoint...
+app.get("/api/timestamp/:date_string?", function (req, res) {
+  const { params: { date_string } } = req;
+  
+  const isDateCompatible = !Number.isNaN(Date.parse(date_string));  
+  const dateInstance = date_string === undefined ? new Date() : new Date(date_string);
+  
+  if (date_string !== undefined && !isDateCompatible) { res.json({ error: "Invalid Date" }); }
+  
+  res.json({ unix: dateInstance.getTime(), utc: dateInstance.toUTCString() })
+});
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
