@@ -18,7 +18,6 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
-
 // your first API endpoint... 
 app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
@@ -28,11 +27,22 @@ app.get("/api/hello", function (req, res) {
 app.get("/api/timestamp/:date_string?", function (req, res) {
   const { params: { date_string } } = req;
   
-  const isDateCompatible = !Number.isNaN(Date.parse(date_string));  
-  const dateInstance = date_string === undefined ? new Date() : new Date(date_string);
+  // 1450137600000
+  const isUnixTimeStamp = !/[^0-9]/g.test(date_string)
   
+  // new Date() likes to take its unixTimeStamp argument as number
+  const instanceSource = isUnixTimeStamp ? parseInt(date_string) : date_string
+  
+  // Undef check
+  const dateInstance = date_string === undefined ? new Date() : new Date(instanceSource)
+  
+  // Date Compatible Flag
+  const isDateCompatible = isUnixTimeStamp || !Number.isNaN(Date.parse(date_string));  
+  
+  // Erroneous case handle
   if (date_string !== undefined && !isDateCompatible) { res.json({ error: "Invalid Date" }); }
   
+  // Rest case handle
   res.json({ unix: dateInstance.getTime(), utc: dateInstance.toUTCString() })
 });
 
